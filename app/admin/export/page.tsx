@@ -17,7 +17,7 @@ interface Report {
   visited_accounts: string | null;
   submitted_at: string;
   updated_at: string;
-  employees: { name: string }[] | null;
+  employees: { name: string } | null;
 }
 
 export default function ExportPage() {
@@ -46,7 +46,7 @@ export default function ExportPage() {
 
       if (error) throw new Error(error.message);
 
-      const reports = (data as Report[]) ?? [];
+      const reports = (data as unknown as Report[]) ?? [];
 
       if (reports.length === 0) {
         toast.info("لا توجد بيانات للفترة المحددة");
@@ -58,7 +58,7 @@ export default function ExportPage() {
 
       const rows = reports.map((r) => ({
         التاريخ: r.report_date,
-        الموظف: r.employees?.[0]?.name ?? "-",
+        الموظف: r.employees?.name ?? "-",
         "إيرادات جوال (₪)": r.jawwal_revenue ?? 0,
         "إيرادات بالتل (₪)": r.paltel_revenue ?? 0,
         "التحصيلات (₪)": r.collections ?? 0,

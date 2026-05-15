@@ -24,7 +24,7 @@ interface Report {
   visits_count: number;
   visited_accounts: string | null;
   submitted_at: string;
-  employees: { name: string }[] | null;
+  employees: { name: string } | null;
 }
 
 export default function AdminDashboardPage() {
@@ -42,7 +42,7 @@ export default function AdminDashboardPage() {
       .eq("report_date", today)
       .order("submitted_at", { ascending: false })
       .then(({ data }) => {
-        setReports((data as Report[]) ?? []);
+        setReports((data as unknown as Report[]) ?? []);
         setLoading(false);
       });
   }, [today]);
@@ -124,7 +124,7 @@ export default function AdminDashboardPage() {
               {reports.map((r) => (
                 <TableRow key={r.id}>
                   <TableCell className="font-semibold text-gray-900">
-                    {r.employees?.[0]?.name ?? "-"}
+                    {r.employees?.name ?? "-"}
                   </TableCell>
                   <TableCell>{formatCurrency(r.jawwal_revenue)}</TableCell>
                   <TableCell>{formatCurrency(r.paltel_revenue)}</TableCell>

@@ -33,7 +33,7 @@ interface Report {
   paltel_revenue: number;
   collections: number;
   visits_count: number;
-  employees: { name: string }[] | null;
+  employees: { name: string } | null;
 }
 
 interface EmployeeSummary {
@@ -71,7 +71,7 @@ export default function MonthlyPage() {
       .lte("report_date", to)
       .order("report_date")
       .then(({ data }) => {
-        setReports((data as Report[]) ?? []);
+        setReports((data as unknown as Report[]) ?? []);
         setLoading(false);
       });
   }, [from, to]);
@@ -79,7 +79,7 @@ export default function MonthlyPage() {
   // Build employee summaries
   const employeeMap = new Map<string, EmployeeSummary>();
   for (const r of reports) {
-    const name = r.employees?.[0]?.name ?? "غير معروف";
+    const name = r.employees?.name ?? "غير معروف";
     const prev = employeeMap.get(name) ?? { name, jawwal: 0, paltel: 0, collections: 0, visits: 0, days: 0 };
     employeeMap.set(name, {
       name,
