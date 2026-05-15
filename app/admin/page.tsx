@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createBrowserClient } from "@/lib/supabase/client";
 import { KpiCard } from "@/components/admin/kpi-card";
 import {
   Table,
@@ -33,18 +32,13 @@ export default function AdminDashboardPage() {
   const today = getTodayString();
 
   useEffect(() => {
-    const supabase = createBrowserClient();
-    supabase
-      .from("daily_reports")
-      .select(
-        "id, report_date, jawwal_revenue, paltel_revenue, collections, visits_count, visited_accounts, submitted_at, employees(name)"
-      )
-      .eq("report_date", today)
-      .order("submitted_at", { ascending: false })
-      .then(({ data }) => {
-        setReports((data as unknown as Report[]) ?? []);
+    fetch(`/api/admin/reports?date=${today}`)
+      .then((r) => r.json())
+      .then((data) => {
+        setReports(Array.isArray(data) ? data : []);
         setLoading(false);
-      });
+      })
+      .catch(() => setLoading(false));
   }, [today]);
 
   const totalJawwal = reports.reduce((s, r) => s + (r.jawwal_revenue ?? 0), 0);

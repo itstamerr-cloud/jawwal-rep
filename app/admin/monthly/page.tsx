@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createBrowserClient } from "@/lib/supabase/client";
 import { KpiCard } from "@/components/admin/kpi-card";
 import {
   Table,
@@ -61,19 +60,13 @@ export default function MonthlyPage() {
   useEffect(() => {
     if (!from || !to) return;
     setLoading(true);
-    const supabase = createBrowserClient();
-    supabase
-      .from("daily_reports")
-      .select(
-        "id, report_date, jawwal_revenue, paltel_revenue, collections, visits_count, employees(name)"
-      )
-      .gte("report_date", from)
-      .lte("report_date", to)
-      .order("report_date")
-      .then(({ data }) => {
-        setReports((data as unknown as Report[]) ?? []);
+    fetch(`/api/admin/reports?from=${from}&to=${to}`)
+      .then((r) => r.json())
+      .then((data) => {
+        setReports(Array.isArray(data) ? data : []);
         setLoading(false);
-      });
+      })
+      .catch(() => setLoading(false));
   }, [from, to]);
 
   // Build employee summaries
