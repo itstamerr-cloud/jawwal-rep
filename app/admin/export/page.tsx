@@ -46,7 +46,7 @@ export default function ExportPage() {
 
       if (error) throw new Error(error.message);
 
-      const reports = (data as Report[]) ?? [];
+      const reports = (data as unknown as Report[]) ?? [];
 
       if (reports.length === 0) {
         toast.info("لا توجد بيانات للفترة المحددة");

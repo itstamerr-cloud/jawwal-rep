@@ -71,7 +71,7 @@ export default function MonthlyPage() {
       .lte("report_date", to)
       .order("report_date")
       .then(({ data }) => {
-        setReports((data as Report[]) ?? []);
+        setReports((data as unknown as Report[]) ?? []);
         setLoading(false);
       });
   }, [from, to]);

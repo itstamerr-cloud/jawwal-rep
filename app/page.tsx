@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { getTodayString } from "@/lib/utils";
+import { createBrowserClient } from "@/lib/supabase/client";
 
 interface Employee {
   id: string;
@@ -25,14 +26,19 @@ export default function HomePage() {
   });
 
   useEffect(() => {
-    fetch("/api/employees")
-      .then((r) => r.json())
-      .then((data) => {
-        setEmployees(Array.isArray(data) ? data : []);
-        setLoading(false);
-      })
-      .catch(() => {
-        toast.error("فشل تحميل قائمة الموظفين");
+    const supabase = createBrowserClient();
+    supabase
+      .from("employees")
+      .select("id, name")
+      .eq("is_active", true)
+      .order("name")
+      .then(({ data, error }) => {
+        if (error) {
+          console.error("Supabase error:", error.message, error.code, error.details);
+          toast.error(`فشل تحميل قائمة الموظفين: ${error.message}`);
+        } else {
+          setEmployees(data ?? []);
+        }
         setLoading(false);
       });
   }, []);
@@ -52,7 +58,8 @@ export default function HomePage() {
 
     setSubmitting(true);
     try {
-      const payload = {
+      const supabase = createBrowserClient();
+      const { error } = await supabase.from("daily_reports").insert({
         employee_id: form.employee_id,
         report_date: form.report_date,
         jawwal_revenue: form.jawwal_revenue ? parseFloat(form.jawwal_revenue) : 0,
@@ -60,18 +67,9 @@ export default function HomePage() {
         collections: form.collections ? parseFloat(form.collections) : 0,
         visits_count: form.visits_count ? parseInt(form.visits_count, 10) : 0,
         visited_accounts: form.visited_accounts.trim() || null,
-      };
-
-      const res = await fetch("/api/reports", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
       });
 
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || "خطأ في الإرسال");
-      }
+      if (error) throw new Error(error.message);
 
       toast.success("تم إرسال التقرير بنجاح ✓");
       setForm((prev) => ({

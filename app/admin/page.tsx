@@ -42,7 +42,7 @@ export default function AdminDashboardPage() {
       .eq("report_date", today)
       .order("submitted_at", { ascending: false })
       .then(({ data }) => {
-        setReports((data as Report[]) ?? []);
+        setReports((data as unknown as Report[]) ?? []);
         setLoading(false);
       });
   }, [today]);
