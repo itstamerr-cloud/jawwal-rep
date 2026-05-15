@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #1A8CFF;
+  --color-background: #F8FAFC;
+  --font-cairo: var(--font-cairo);
+  --font-inter: var(--font-inter);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background-color: #F8FAFC;
+  font-family: var(--font-cairo), var(--font-inter), sans-serif;
+}
+
+[dir="rtl"] { text-align: right; }
