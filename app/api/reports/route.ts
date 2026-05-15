@@ -21,7 +21,7 @@ export async function POST(request: Request) {
 
     const now = new Date().toISOString();
     const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/daily_reports`,
+      `${SUPABASE_URL}/rest/v1/daily_reports?on_conflict=employee_id,report_date`,
       {
         method: "POST",
         headers: {
