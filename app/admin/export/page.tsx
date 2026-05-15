@@ -17,7 +17,7 @@ interface Report {
   visited_accounts: string | null;
   submitted_at: string;
   updated_at: string;
-  employees: { name: string } | null;
+  employees: { name: string }[] | null;
 }
 
 export default function ExportPage() {
@@ -58,7 +58,7 @@ export default function ExportPage() {
 
       const rows = reports.map((r) => ({
         التاريخ: r.report_date,
-        الموظف: r.employees?.name ?? "-",
+        الموظف: r.employees?.[0]?.name ?? "-",
         "إيرادات جوال (₪)": r.jawwal_revenue ?? 0,
         "إيرادات بالتل (₪)": r.paltel_revenue ?? 0,
         "التحصيلات (₪)": r.collections ?? 0,
