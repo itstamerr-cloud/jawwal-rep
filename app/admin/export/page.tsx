@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { createBrowserClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { getFirstDayOfMonth, getTodayString } from "@/lib/utils";
@@ -33,20 +32,10 @@ export default function ExportPage() {
 
     setLoading(true);
     try {
-      const supabase = createBrowserClient();
-      const { data, error } = await supabase
-        .from("daily_reports")
-        .select(
-          "id, report_date, jawwal_revenue, paltel_revenue, collections, visits_count, visited_accounts, submitted_at, updated_at, employees(name)"
-        )
-        .gte("report_date", from)
-        .lte("report_date", to)
-        .order("report_date")
-        .order("employees(name)");
-
-      if (error) throw new Error(error.message);
-
-      const reports = (data as unknown as Report[]) ?? [];
+      const res = await fetch(`/api/admin/reports?from=${from}&to=${to}&mode=export`);
+      if (!res.ok) throw new Error("فشل تحميل البيانات");
+      const data = await res.json();
+      const reports: Report[] = Array.isArray(data) ? data : [];
 
       if (reports.length === 0) {
         toast.info("لا توجد بيانات للفترة المحددة");
@@ -74,17 +63,16 @@ export default function ExportPage() {
 
       const worksheet = XLSX.utils.json_to_sheet(rows);
 
-      // Set column widths
       worksheet["!cols"] = [
-        { wch: 14 }, // date
-        { wch: 20 }, // employee
-        { wch: 18 }, // jawwal revenue
-        { wch: 18 }, // paltel revenue
-        { wch: 16 }, // collections
-        { wch: 14 }, // visits
-        { wch: 30 }, // visited accounts
-        { wch: 22 }, // submitted at
-        { wch: 22 }, // updated at
+        { wch: 14 },
+        { wch: 20 },
+        { wch: 18 },
+        { wch: 18 },
+        { wch: 16 },
+        { wch: 14 },
+        { wch: 30 },
+        { wch: 22 },
+        { wch: 22 },
       ];
 
       const workbook = XLSX.utils.book_new();

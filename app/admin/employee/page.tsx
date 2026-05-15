@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createBrowserClient } from "@/lib/supabase/client";
 import { KpiCard } from "@/components/admin/kpi-card";
 import {
   Table,
@@ -50,13 +49,9 @@ export default function EmployeeDetailsPage() {
   const [to, setTo] = useState(getTodayString());
 
   useEffect(() => {
-    const supabase = createBrowserClient();
-    supabase
-      .from("employees")
-      .select("id, name")
-      .eq("is_active", true)
-      .order("name")
-      .then(({ data }) => setEmployees((data as Employee[]) ?? []));
+    fetch("/api/admin/employees")
+      .then((r) => r.json())
+      .then((data) => setEmployees(Array.isArray(data) ? data : []));
   }, []);
 
   useEffect(() => {
@@ -65,20 +60,14 @@ export default function EmployeeDetailsPage() {
       return;
     }
     setLoading(true);
-    const supabase = createBrowserClient();
-    supabase
-      .from("daily_reports")
-      .select(
-        "id, report_date, jawwal_revenue, paltel_revenue, collections, visits_count, visited_accounts, submitted_at"
-      )
-      .eq("employee_id", selectedId)
-      .gte("report_date", from)
-      .lte("report_date", to)
-      .order("report_date", { ascending: false })
-      .then(({ data }) => {
-        setReports((data as Report[]) ?? []);
+    const params = new URLSearchParams({ employee_id: selectedId, from, to });
+    fetch(`/api/admin/reports?${params.toString()}`)
+      .then((r) => r.json())
+      .then((data) => {
+        setReports(Array.isArray(data) ? data : []);
         setLoading(false);
-      });
+      })
+      .catch(() => setLoading(false));
   }, [selectedId, from, to]);
 
   const totalJawwal = reports.reduce((s, r) => s + (r.jawwal_revenue ?? 0), 0);
